@@ -3,6 +3,11 @@
 A small task management app: a Spring Boot REST API, a React page, and MySQL, all
 runnable with Docker Compose. It is a practice project for learning AI-assisted coding.
 
+## Versions
+
+- **v2 (current, `master` and `v2`):** adds register, login, logout with JWT and per-user tasks.
+- **v1 (tag `v1.0`):** tasks API and React page, no login.
+
 ## Features
 
 - Register, log in, and log out (JWT tokens, passwords hashed with Argon2id)
