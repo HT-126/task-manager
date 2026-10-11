@@ -18,7 +18,12 @@ class TaskRepositoryTest {
     TaskRepository repository;
 
     private Task task(String title, TaskStatus status) {
+        return task(title, status, 1L);
+    }
+
+    private Task task(String title, TaskStatus status, Long ownerId) {
         Task t = new Task();
+        t.setOwnerId(ownerId);
         t.setTitle(title);
         t.setStatus(status);
         return t;
@@ -38,12 +43,21 @@ class TaskRepositoryTest {
     }
 
     @Test
-    void findByStatusReturnsOnlyMatching() {
+    void findByOwnerIdAndStatusReturnsOnlyMatching() {
         repository.save(task("a", TaskStatus.TODO));
         repository.save(task("b", TaskStatus.DONE));
+        repository.save(task("other user's", TaskStatus.DONE, 2L));
 
-        assertThat(repository.findByStatus(TaskStatus.DONE))
+        assertThat(repository.findByOwnerIdAndStatus(1L, TaskStatus.DONE))
                 .extracting(Task::getTitle).containsExactly("b");
+    }
+
+    @Test
+    void findByIdAndOwnerIdHidesOtherUsersTasks() {
+        Task mine = repository.save(task("mine", TaskStatus.TODO, 1L));
+
+        assertThat(repository.findByIdAndOwnerId(mine.getId(), 1L)).isPresent();
+        assertThat(repository.findByIdAndOwnerId(mine.getId(), 2L)).isEmpty();
     }
 
     @Test

@@ -32,6 +32,11 @@ public class Task {
 
     private LocalDate dueDate;
 
+    // Id of the user who owns this task. Every query filters on it, so users only see their own.
+    // Left nullable in the schema so tables created by v1 (rows without an owner) can be upgraded.
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -50,5 +55,7 @@ public class Task {
     public void setStatus(TaskStatus status) { this.status = status; }
     public LocalDate getDueDate() { return dueDate; }
     public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public Instant getCreatedAt() { return createdAt; }
 }

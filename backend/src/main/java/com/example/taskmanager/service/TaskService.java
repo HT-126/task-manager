@@ -9,6 +9,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 // @Service: marks a business-logic bean; Spring creates it and injects the repository.
+// Every method takes the caller's user id. A task owned by someone else is reported as
+// "not found" (404), so its existence is not revealed.
 @Service
 public class TaskService {
 
@@ -18,39 +20,42 @@ public class TaskService {
         this.repository = repository;
     }
 
-    public Task create(TaskRequest request) {
+    public Task create(Long ownerId, TaskRequest request) {
         Task task = new Task();
-        task.setTitle(request.title());
-        task.setDescription(request.description());
-        task.setDueDate(request.dueDate());
-        if (request.status() != null) {
-            task.setStatus(request.status());
-        }
+        task.setOwnerId(ownerId);
+        apply(task, request);
         return repository.save(task);
     }
 
-    // status == null means "no filter": return every task.
-    public List<Task> list(TaskStatus status) {
-        return status == null ? repository.findAll() : repository.findByStatus(status);
+    // status == null means "no filter": return all of the user's tasks.
+    public List<Task> list(Long ownerId, TaskStatus status) {
+        return status == null
+                ? repository.findByOwnerId(ownerId)
+                : repository.findByOwnerIdAndStatus(ownerId, status);
     }
 
-    public Task get(Long id) {
-        return repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public Task get(Long ownerId, Long id) {
+        return repository.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
     // Replaces title/description/dueDate; a null status keeps the current one.
-    public Task update(Long id, TaskRequest request) {
-        Task task = get(id);
+    public Task update(Long ownerId, Long id, TaskRequest request) {
+        Task task = get(ownerId, id);
+        apply(task, request);
+        return repository.save(task);
+    }
+
+    public void delete(Long ownerId, Long id) {
+        repository.delete(get(ownerId, id));
+    }
+
+    private void apply(Task task, TaskRequest request) {
         task.setTitle(request.title());
         task.setDescription(request.description());
         task.setDueDate(request.dueDate());
         if (request.status() != null) {
             task.setStatus(request.status());
         }
-        return repository.save(task);
-    }
-
-    public void delete(Long id) {
-        repository.delete(get(id));
     }
 }
