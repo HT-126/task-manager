@@ -10,3 +10,6 @@ main { max-width: 720px; margin: 2rem auto; padding: 0 1rem; font-family: system
 .badge.DONE { background: #c8f0c8; }
 .error { color: #b00020; }
 .empty { color: #777; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.auth-form { display: flex; flex-direction: column; gap: 0.5rem; max-width: 320px; margin: 2rem auto; }
+.auth-form .link { background: none; border: none; color: #0b57d0; cursor: pointer; text-decoration: underline; }

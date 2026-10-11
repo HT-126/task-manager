@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { createTask, deleteTask, listTasks, updateTask } from './api'
 import { STATUSES } from './constants'
 import TaskForm from './TaskForm'
-import './App.css'
 
-export default function App() {
+// The task list for the logged-in user. Calls onSessionExpired when the API answers 401.
+export default function TaskBoard({ onSessionExpired }) {
   const [tasks, setTasks] = useState([])
   const [filter, setFilter] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -19,8 +19,8 @@ export default function App() {
         setTasks(data)
         setError('')
       })
-      .catch((e) => setError(e.message))
-  }, [filter, reloads])
+      .catch((e) => (e.status === 401 ? onSessionExpired() : setError(e.message)))
+  }, [filter, reloads, onSessionExpired])
 
   // Run an API call, then reload the list; show any error.
   async function act(fn) {
@@ -29,14 +29,13 @@ export default function App() {
       setEditingId(null)
       setReloads((n) => n + 1)
     } catch (e) {
-      setError(e.message)
+      if (e.status === 401) onSessionExpired()
+      else setError(e.message)
     }
   }
 
   return (
-    <main>
-      <h1>Task Manager</h1>
-
+    <div>
       <TaskForm onSubmit={(t) => act(() => createTask(t))} />
 
       <label className="filter">
@@ -75,6 +74,6 @@ export default function App() {
         )}
         {tasks.length === 0 && <li className="empty">No tasks.</li>}
       </ul>
-    </main>
+    </div>
   )
 }
