@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.taskmanager.config.CorsConfig;
 import com.example.taskmanager.exception.TaskNotFoundException;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.TaskStatus;
@@ -20,12 +21,14 @@ import com.example.taskmanager.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 // @WebMvcTest: starts only the web layer; the service is replaced by a mock.
 @WebMvcTest(TaskController.class)
+@Import(CorsConfig.class)
 class TaskControllerTest {
 
     @Autowired
@@ -121,5 +124,15 @@ class TaskControllerTest {
         willThrow(new TaskNotFoundException(99L)).given(service).delete(99L);
 
         mvc.perform(delete("/api/tasks/99")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void corsAllowsDevServerOrigin() throws Exception {
+        given(service.list(any())).willReturn(List.of());
+
+        mvc.perform(get("/api/tasks").header("Origin", "http://localhost:5173"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                        .string("Access-Control-Allow-Origin", "http://localhost:5173"));
     }
 }

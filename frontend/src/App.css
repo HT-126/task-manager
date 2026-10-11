@@ -1,0 +1,12 @@
+main { max-width: 720px; margin: 2rem auto; padding: 0 1rem; font-family: system-ui, sans-serif; }
+.task-form { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.task-form input:first-child { flex: 1 1 200px; }
+.filter { display: block; margin-bottom: 1rem; }
+.tasks { list-style: none; padding: 0; }
+.tasks li { border: 1px solid #ccc; border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.5rem; }
+.desc { color: #555; margin: 0.3rem 0; }
+.badge { font-size: 0.75rem; padding: 0 0.4rem; border-radius: 4px; background: #eee; }
+.badge.DOING { background: #ffe9a8; }
+.badge.DONE { background: #c8f0c8; }
+.error { color: #b00020; }
+.empty { color: #777; }
